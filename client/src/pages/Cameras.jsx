@@ -3,9 +3,6 @@ import { useNavigate } from "react-router-dom";
 import api from "../utils/api"; 
 import toast from "react-hot-toast";
 import { Plus, Video, Monitor, AlertCircle, Loader2, Signal } from "lucide-react";
-
-// Assuming these are your components, we apply the styles via props or wrapper classes
-import PageWrapper from "../components/layout/PageWrapper";
 import CameraCard from "../components/cameras/CameraCard";
 import CameraGrid from "../components/dashboard/CameraGrid";
 

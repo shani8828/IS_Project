@@ -15,7 +15,7 @@ export default function KnownPeople() {
         setLoading(true);
         // Updated with your team members for a better UI preview
         const hardcodedPeople = [
-          { _id: "2", name: "Akash Kolanti", role: "Student", samplesCount: 18, createdAt: "2025-02-02" },
+          { _id: "2", name: "Akash Kolanti", role: "Student", samplesCount: 18, createdAt: "2026-02-02" },
         ];
         setPeople(hardcodedPeople);
       } catch (err) {

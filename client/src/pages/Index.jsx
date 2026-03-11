@@ -52,22 +52,6 @@ const HomePage = () => {
       color: "amber",
     },
   ];
-
-  const members = [
-    {
-      name: "Shani Maurya",
-      roll: "23IM10033",
-      role: "Frontend & Backend",
-      git: "https://github.com/shani8828",
-    },
-    {
-      name: "Akash Kolanti",
-      roll: "23IM10045",
-      role: "Identification & Recognition",
-    },
-    { name: "Baki Vasanth", roll: "23IM10023", role: "Camera Stream" },
-  ];
-
   return (
     <div className="min-h-screen bg-[#020617] text-slate-200 font-sans selection:bg-blue-500/30 overflow-x-hidden">
       {/* --- AMBIENT BACKGROUND --- */}
@@ -234,7 +218,7 @@ const HomePage = () => {
               <div className="absolute inset-0 bg-blue-500/10 blur-[120px] rounded-full" />
               <div className="relative p-1 rounded-[42px] bg-gradient-to-b from-slate-700 to-slate-900 shadow-2xl">
                 <div className="relative p-8 rounded-[40px] bg-[#020617] backdrop-blur-2xl overflow-hidden">
-                  {/* Animated Scanning Line */}
+                  
                   <div className="absolute left-0 right-0 h-1 bg-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.5)] animate-scan z-20 pointer-events-none" />
                   <div className="aspect-video rounded-2xl bg-slate-950 border border-slate-800 overflow-hidden flex items-center justify-center group relative">
                     <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none" />
