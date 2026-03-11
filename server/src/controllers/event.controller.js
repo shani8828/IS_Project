@@ -1,28 +1,13 @@
-const Event = require("../models/Event.js");
-const { validateEvent } = require("../utils/validateEvent.js");
-const { getIO } = require("../sockets/socket.js");
+const Event = require("../models/Event");
 
-const ingestEvent = async (req, res) => {
+const getEvents = async (req, res) => {
   try {
-    const data = req.body;
-
-    if (!validateEvent(data)) {
-      return res.status(400).json({ message: "Invalid event" });
-    }
-
-    const newEvent = await Event.create({
-      ...data,
-      timestamp: new Date(),
-    });
-
-    const io = getIO();
-    io.emit("new_event", newEvent);
-
-    res.json({ success: true });
+    // Fetch last 50 events, sorted by newest first
+    const events = await Event.find().sort({ timestamp: -1 }).limit(50);
+    res.status(200).json(events);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ message: "Error fetching events" });
   }
 };
 
-// Exporting the function
-exports.ingestEvent = ingestEvent;
+module.exports = { getEvents };

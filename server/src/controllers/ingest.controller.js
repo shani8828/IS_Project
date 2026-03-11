@@ -3,14 +3,20 @@ const KnownPerson = require("../models/KnownPerson");
 const UnknownPerson = require("../models/UnknownPerson");
 const Counter = require("../models/Counter");
 const { isDuplicate } = require("../services/state.service");
+const { getCurrentSessionId } = require("../services/session.service");
 
 const ingestEvent = async (req, res) => {
-    
-    await Counter.create({ knownCount: 0, unknownCount: 0 });
   try {
-    console.log("Incoming body:", req.body);
-
+    const sessionId = getCurrentSessionId();
     const io = req.app.get("io");
+
+    // --- CONFIRMATION LOG START ---
+    // This will print the incoming data from the other laptop to your console
+    console.log("-----------------------------------------");
+    console.log(`[${new Date().toISOString()}] New Event Received:`);
+    console.log(JSON.stringify(req.body, null, 2));
+    console.log("-----------------------------------------");
+    // --- CONFIRMATION LOG END ---
 
     const {
       event_id,
@@ -22,12 +28,15 @@ const ingestEvent = async (req, res) => {
       confidence,
     } = req.body;
 
+    // 1. Check for duplicates
     if (isDuplicate(track_id)) {
+      console.log(`Duplicate track detected: ${track_id}. Skipping...`);
       return res.status(200).json({ message: "Duplicate track ignored" });
     }
 
-    // Save raw event
-    await Event.create({
+    // 2. Save event with Session ID
+    const newEvent = await Event.create({
+      session_id: sessionId,
       event_id,
       timestamp,
       camera_id,
@@ -36,14 +45,25 @@ const ingestEvent = async (req, res) => {
       person_id,
       confidence,
     });
+    
+    // Emit event with session info
+    io.emit("new_event", newEvent);
 
-    const counter = await Counter.findOne();
+    // 3. Handle Counter for current session
+    let counter = await Counter.findOne({ session_id: sessionId });
+    if (!counter) {
+      counter = await Counter.create({ 
+        session_id: sessionId, 
+        knownCount: 0, 
+        unknownCount: 0 
+      });
+    }
 
     let isNewPerson = false;
 
+    // 4. Update Person Logic
     if (is_known) {
       const existing = await KnownPerson.findOne({ person_id });
-
       if (!existing) {
         isNewPerson = true;
         counter.knownCount += 1;
@@ -57,10 +77,8 @@ const ingestEvent = async (req, res) => {
         },
         { upsert: true }
       );
-
     } else {
       const existing = await UnknownPerson.findOne({ temp_id: person_id });
-
       if (!existing) {
         isNewPerson = true;
         counter.unknownCount += 1;
@@ -77,12 +95,14 @@ const ingestEvent = async (req, res) => {
       );
     }
 
+    // 5. Save counter and emit
     if (isNewPerson) {
       await counter.save();
+      console.log(`New person added to session ${sessionId}. Total Known: ${counter.knownCount}, Unknown: ${counter.unknownCount}`);
     }
 
-    // Emit updated counts to frontend
     io.emit("countUpdate", {
+      session_id: sessionId,
       known: counter.knownCount,
       unknown: counter.unknownCount,
       total: counter.knownCount + counter.unknownCount,
@@ -91,10 +111,11 @@ const ingestEvent = async (req, res) => {
     return res.status(200).json({
       message: "Event processed successfully",
       isNewPerson,
+      sessionId
     });
 
   } catch (err) {
-    console.error("Ingest Error:", err);
+    console.error("!!! Ingest Error !!!", err);
     return res.status(500).json({ message: "Server error" });
   }
 };

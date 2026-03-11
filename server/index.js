@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const http = require("http");
 const dotenv = require("dotenv");
-
+dotenv.config();
 // Configuration & Utils
 const { connectDB } = require("./src/config/db.js");
 const { initSocket } = require("./src/sockets/socket.js");
@@ -14,7 +14,6 @@ const peopleRoutes = require("./src/routes/people.routes.js");
 const cameraRoutes = require("./src/routes/addCamera.routes.js");
 const ingestRoutes = require("./src/routes/ingest.routes.js");
 
-dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
@@ -25,7 +24,6 @@ connectDB();
 // Initialize Socket
 const io = initSocket(server);
 
-// 🔥 Attach io to express app so controllers can access it
 app.set("io", io);
 
 // Middleware
@@ -49,7 +47,6 @@ app.use("/api/stats", statsRoutes);
 app.use("/api/people", peopleRoutes);
 app.use("/api/cameras", cameraRoutes);
 app.use("/api/ingest", ingestRoutes);
-
 // Server Listen
 const PORT = process.env.PORT || 5000;
 

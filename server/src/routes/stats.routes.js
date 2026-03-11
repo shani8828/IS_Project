@@ -1,18 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const LiveStats = require("../models/liveStats.model");
+const { getLiveStats } = require("../controllers/stats.controller");
 
-router.get("/live", async (req, res) => {
-  let stats = await LiveStats.findOne();
-
-  if (!stats) {
-    stats = await LiveStats.create({
-      totalKnown: 0,
-      totalUnknown: 0,
-    });
-  }
-
-  res.json(stats);
-});
+// Define the GET route for live stats
+router.get("/live-stats", getLiveStats);
 
 module.exports = router;

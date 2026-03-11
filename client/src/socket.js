@@ -1,6 +1,6 @@
 import { io } from "socket.io-client";
 
-const SOCKET_URL = "http://10.145.10.216:5000/api";
+const SOCKET_URL = "http://localhost:5000/api";
 
 export const socket = io(SOCKET_URL, {
   transports: ["websocket"],
